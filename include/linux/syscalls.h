@@ -68,6 +68,9 @@ struct file_handle;
 struct sigaltstack;
 union bpf_attr;
 
+extern unsigned long mytrace;
+extern unsigned long sysnum;
+
 #include <linux/types.h>
 #include <linux/aio_abi.h>
 #include <linux/capability.h>

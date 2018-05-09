@@ -34,6 +34,9 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/syscalls.h>
 
+unsigned long mytrace;
+unsigned long sysnum;
+
 #ifdef CONFIG_CONTEXT_TRACKING
 /* Called on entry from user mode with IRQs off. */
 __visible inline void enter_from_user_mode(void)
@@ -275,7 +278,9 @@ __visible void do_syscall_64(struct pt_regs *regs)
 
 	if (READ_ONCE(ti->flags) & _TIF_WORK_SYSCALL_ENTRY)
 		nr = syscall_trace_enter(regs);
-
+	
+	mytrace = pt_regs->orig_eax;
+	sysnum = nr;
 	/*
 	 * NB: Native and x32 syscalls are dispatched from the same
 	 * table.  The only functional difference is the x32 bit in

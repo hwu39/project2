@@ -1,16 +1,40 @@
-struct sequence {
-  unsigned int **seq;
-  unsigned int id;
-} sequence;
+#include <linux/kernel.h>
+#include <linux/syscalls.h>
+#include <linux/init.h>
 
-unsigned long sequence_init(unsigned int *sequence, unsigned int id)
+extern long user_pid;
+extern unsigned long *syscall_array;
+extern int pid_position;
+extern int log_switch;  
+
+void setPID(long pid);
+long getPID(void);
+void sysarray_init(void);
+unsigned long *get_sysarray(void);
+void set_switch(void);
+
+
+void setPID(long pid)
 {
-  this->id = id;
-  if (this->seq == NULL) {
-    sequence **temp = malloc(10 * sizeof(sequence));
-    temp[0] = sequence;
-  }
-  else {
-    return -1;
-  }
+  user_pid = pid;
+}
+
+long getPID(void)
+{
+  return user_pid;
+}
+
+void sysarray_init(void)
+{
+  syscall_array = (long*)kmalloc(sizeof(long), GFP_KERNEL);
+}
+
+unsigned long get_sysarray(void)
+{
+  return syscall_array;
+}
+
+void set_switch(int onoff)
+{
+  log_switch = onoff;
 }

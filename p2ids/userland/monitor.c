@@ -1,29 +1,54 @@
 #include <stdio.h>
-//#include <sys/type.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <limits.h>
 #include <sys/wait.h>
 
+int user_pid;
+unsigned long *syscall_array;
+int pid_position;
+int log_switch;
+
 int read_line(char *buf);
 unsigned long monitor(char *sys_calls, unsigned int id);
+unsigned long sequence_init(unsigned int *sequence, unsigned int id);
+
+typedef struct sequence {
+  unsigned int seq;
+  unsigned int id;
+} sequence;
+
+sequence **buffer; //buffer array to store all system calls
+
+
+unsigned long sequence_init(unsigned int *syscall_sequence, unsigned int id)
+{
+  if (buffer  == NULL) {
+    buffer[0] = malloc(10 * sizeof(syscall_sequence));
+    buffer[0]->id = id;
+    buffer[0]->seq = syscall_sequence;
+  }
+  else {
+    return -1;
+  }
+}
 
 unsigned long monitor(char *sys_calls, unsigned int id)
 {
   //for instance, system calls are O,R,M,W,C
-  Int I;
-  Unsigned int *sequence;
-  for (i=o; i<sizeof(sys_calls); i++) {
-    if (!strcmp(“some system call”,sys_calls[i])) {
-      sequence[i] = 1;
+  int i;
+  unsigned int *syscall;
+  for (i=0; i<sizeof(sys_calls); i++) {
+    if (!strcmp(syscall,sys_calls[i])) {
+      buffer[i] = 1;
     }
     else {
-      Sequence[i] = 0;
+      buffer[i] = 0;
     }
   }
-  If (sequence_init(sequence, id) == -1) {
-    sequence_detector(sequence,id);
+  if (sequence_init(syscall, id) == -1) {
+    //sequence_detector(syscall,id);
   }
 }
 
@@ -48,27 +73,34 @@ int main(int argc, char *argv[])
 {
   pid_t pid;
   printf("IDS\n");
+  log_switch = 0;
   while (1) {
-    char *token = malloc(sizeof(char)), *temp;
-    int size = read_line(token);
-    //tokenize string
-    temp = strtok(token," ");
-    int counter = 0;
-    char *arg[size];
-    while (temp != NULL) {
-      arg[counter++] = temp;
-      temp = strtok(NULL, " ");
-    }
+    const char *ps[2];
+    ps[0] = "ps";
+    ps[1] = NULL;
 
-    if (size > 0) {
-      if (pid < 0) {
-	fprintf(stderr,"Fork Failed"); //an error has occurred
-      }
-      else if (pid == 0) {
-	if (execvp(arg[0],arg) == -1) {
-	  return 1;
-	}
-      }
+    pid = fork();
+    if (pid == 0) {
+      execvp(ps[0],ps);
+    }
+    else {
+      pid = wait(NULL);
+    }
+    int u_pid;
+    int sw;
+    printf("Enter the PID you want to track\n");
+    if (log_switch == 1) {
+      printf("To switch off IDS, press 0\n");
+      scanf("%d",&sw);
+      log_switch = sw;
+    }
+    else if(log_switch == 0) {
+      printf("To switch on IDS, press 0\n");
+      scanf("%d",&sw);
+      log_switch = sw;
+    }
+    if (log_switch == 1) {
+      scanf("%d",&u_pid);
     }
   }
   return 0;

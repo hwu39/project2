@@ -1,17 +1,18 @@
 #include <linux/kernel.h>
 #include <linux/syscalls.h>
 #include <linux/init.h>
+#include <linux/types.h>
 
-extern long user_pid;
-extern unsigned long *syscall_array;
-extern int pid_position;
-extern int log_switch;  
+//int user_pid;
+//unsigned long *syscall_array;
+//int pid_position;
+//int log_switch;  
 
 void setPID(long pid);
 long getPID(void);
 void sysarray_init(void);
 unsigned long *get_sysarray(void);
-void set_switch(void);
+void set_switch(int on_off);
 
 
 void setPID(long pid)
@@ -27,14 +28,16 @@ long getPID(void)
 void sysarray_init(void)
 {
   syscall_array = (long*)kmalloc(sizeof(long), GFP_KERNEL);
+  pid_position = 0;
 }
 
-unsigned long get_sysarray(void)
+unsigned long *get_sysarray(void)
 {
   return syscall_array;
 }
 
-void set_switch(int onoff)
+void set_switch(int on_off)
 {
-  log_switch = onoff;
+  log_switch = on_off;
 }
+

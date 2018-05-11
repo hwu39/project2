@@ -34,8 +34,13 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/syscalls.h>
 
-unsigned long mytrace;
-unsigned long sysnum;
+#include <linux/types.h>
+#include <asm/current.h>
+
+int user_pid;
+unsigned long *syscall_array;
+int pid_position;
+int log_switch; 
 
 #ifdef CONFIG_CONTEXT_TRACKING
 /* Called on entry from user mode with IRQs off. */
@@ -228,6 +233,7 @@ static void syscall_slow_exit_work(struct pt_regs *regs, u32 cached_flags)
 	if (cached_flags & _TIF_SYSCALL_TRACEPOINT)
 		trace_sys_exit(regs, regs->ax);
 
+	
 	/*
 	 * If TIF_SYSCALL_EMU is set, we only get here because of
 	 * TIF_SINGLESTEP (i.e. this is PTRACE_SYSEMU_SINGLESTEP).
@@ -279,8 +285,10 @@ __visible void do_syscall_64(struct pt_regs *regs)
 	if (READ_ONCE(ti->flags) & _TIF_WORK_SYSCALL_ENTRY)
 		nr = syscall_trace_enter(regs);
 	
-	mytrace = pt_regs->orig_eax;
-	sysnum = nr;
+      	if (current->pid  ==  user_pid) {
+	  syscall_array[pid_position] = regs->orig_ax;
+	  pid_position++;
+	}
 	/*
 	 * NB: Native and x32 syscalls are dispatched from the same
 	 * table.  The only functional difference is the x32 bit in

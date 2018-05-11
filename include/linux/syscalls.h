@@ -81,6 +81,15 @@ union bpf_attr;
 #include <linux/key.h>
 #include <trace/syscall.h>
 
+extern int user_pid;
+//EXPORT_SYMBOL(user_pid);
+extern unsigned long *syscall_array;
+//EXPORT_SYMBOL(syscall_array);
+extern int pid_position;
+//EXPORT_SYMBOL(pid_position);
+extern int log_switch; 
+//EXPORT_SYMBOL(log_switch);
+
 /*
  * __MAP - apply a macro to syscall arguments
  * __MAP(n, m, t1, a1, t2, a2, ..., tn, an) will expand to

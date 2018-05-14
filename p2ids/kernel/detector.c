@@ -40,11 +40,13 @@ asmlinkage void sysarray_init(void)
 
 asmlinkage unsigned long *get_sysarray(unsigned long *syscall_buffer, int window_size)
 {
-  mutex_lock(&lock);
   int i;
   unsigned long res;
   //shrink array down to window_size
-  unisgned long *temp_array[window_size];
+  unsigned long *temp_array[window_size];
+  
+  mutex_lock(&lock);
+  
   //get last block of system calls in array according to window size
   for (i = 0; i < window_size; i++) {
     temp_array[0] = syscall_array[pid_position - window_size + i];
@@ -61,7 +63,7 @@ asmlinkage void set_switch(int on_off)
   mutex_unlock(&lock);
 }
 
-asmlinkage void num_syscalls(void)
+asmlinkage int num_syscalls(void)
 {
   return pid_position;
 }

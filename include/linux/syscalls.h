@@ -954,5 +954,5 @@ asmlinkage int getPID(void);
 asmlinkage void sysarray_init(void);
 asmlinkage unsigned long *get_sysarray(unsigned long *syscall_buffer, int window_size);
 asmlinkage void set_switch(int on_off);
-asmlinkage void num_syscalls(void);
+asmlinkage int num_syscalls(void);
 #endif

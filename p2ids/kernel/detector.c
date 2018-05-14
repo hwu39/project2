@@ -38,10 +38,18 @@ asmlinkage void sysarray_init(void)
   mutex_unlock(&lock);
 }
 
-asmlinkage unsigned long *get_sysarray(unsigned long *syscall_buffer, int size)
+asmlinkage unsigned long *get_sysarray(unsigned long *syscall_buffer, int window_size)
 {
   mutex_lock(&lock);
-
+  int i;
+  unsigned long res;
+  //shrink array down to window_size
+  unisgned long *temp_array[window_size];
+  //get last block of system calls in array according to window size
+  for (i = 0; i < window_size; i++) {
+    temp_array[0] = syscall_array[pid_position - window_size + i];
+  }
+  res = copy_to_user(syscall_buffer, temp_array, sizeof(unsigned long));
   mutex_unlock(&lock);
   return syscall_array;
 }

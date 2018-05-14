@@ -12,6 +12,7 @@
 #define __NR_sysarray_init 335
 #define __NR_get_sysarray 336
 #define __NR_set_switch 337
+#define __NR_num_syscalls 338
 
 /*
 int user_pid;
@@ -108,16 +109,50 @@ int main(int argc, char *argv[])
     }
     printf("Enter the PID you want to track\n");
     syscall(__NR_set_switch,sw);
+    scanf("%d",&user_pid);
+    syscall(__NR_setPID,user_pid);
+    u_pid = syscall(__NR_getPID);
+    printf("The pid you are tracking: %d\n",u_pid);
     while  (sw == 1) {
-      scanf("%d",&user_pid);
-      syscall(__NR_setPID,user_pid);
-      u_pid = syscall(__NR_getPID);
-      printf("The pid you are tracking: %d\n",u_pid);
       printf ("Press 1 to continue tracking, 0 to stop\n");
       
       scanf("%d",&sw);
       syscall(__NR_set_switch,sw);
-    }  
+    }
+
+    int window_size;
+    printf("Enter a window size for capturing system calls\n");
+    
+    scanf("%d",&window_size);
+    unsigned long *syscall_array = malloc(sizeof(unsigned long));
+    long int sys = syscall(__NR_get_sysarray, syscall_array, window_size);
+
+    //once kernel array obtained, compare system calls
+    int hamming_distance = 0;
+    unsigned long temp_array[window_size/4];
+    int j;
+    for (j = 0; j < window_size; j++) {
+      if (j > 0 && j < window_size/4) {
+	temp_array[j] = syscall_array[j];
+      }
+      else if (j >= window_size/4 && j < window_size) {
+	char val = temp_array[j] ^ syscall_array[j];
+	while (val) {
+	  ++hamming_distance;
+	  val &= val - 1;
+	}
+      }
+    }
+
+    if (hamming_distance == 0) {
+      printf("Excellent Condition\n");
+    }
+    else if (hamming_distance > 0 || hamming_distance <= 10) {
+      printf("Acceptable Condition\n");
+    }
+    else {
+      printf("Process is under attack\n");
+    }
   }
   return 0;
 }

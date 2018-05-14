@@ -4,16 +4,27 @@
 #include <string.h>
 #include <limits.h>
 #include <sys/wait.h>
+#include <linux/kernel.h>
+#include <sys/syscall.h>
 
+#define __NR_setPID 333
+#define __NR_getPID 334
+#define __NR_sysarray_init 335
+#define __NR_get_sysarray 336
+#define __NR_set_switch 337
+
+/*
 int user_pid;
 unsigned long *syscall_array;
 int pid_position;
 int log_switch;
+*/
 
 int read_line(char *buf);
 unsigned long monitor(char *sys_calls, unsigned int id);
 unsigned long sequence_init(unsigned int *sequence, unsigned int id);
 
+/*
 typedef struct sequence {
   unsigned int seq;
   unsigned int id;
@@ -51,7 +62,7 @@ unsigned long monitor(char *sys_calls, unsigned int id)
     //sequence_detector(syscall,id);
   }
 }
-
+*/
 int read_line(char *buf)
 {
   int i,j;
@@ -73,7 +84,7 @@ int main(int argc, char *argv[])
 {
   pid_t pid;
   printf("IDS\n");
-  log_switch = 0;
+  int u_pid;
   while (1) {
     const char *ps[2];
     ps[0] = "ps";
@@ -86,22 +97,27 @@ int main(int argc, char *argv[])
     else {
       pid = wait(NULL);
     }
-    int u_pid;
+    int user_pid;
     int sw;
+    
+    printf("Press 1 to start tracking system calls\n");    
+    scanf("%d",&sw);
+    while (sw != 1) {
+      printf("Please enter a valid choice.\n");
+      scanf("%d",&sw);
+    }
     printf("Enter the PID you want to track\n");
-    if (log_switch == 1) {
-      printf("To switch off IDS, press 0\n");
+    syscall(__NR_set_switch,sw);
+    while  (sw == 1) {
+      scanf("%d",&user_pid);
+      syscall(__NR_setPID,user_pid);
+      u_pid = syscall(__NR_getPID);
+      printf("The pid you are tracking: %d\n",u_pid);
+      printf ("Press 1 to continue tracking, 0 to stop\n");
+      
       scanf("%d",&sw);
-      log_switch = sw;
-    }
-    else if(log_switch == 0) {
-      printf("To switch on IDS, press 0\n");
-      scanf("%d",&sw);
-      log_switch = sw;
-    }
-    if (log_switch == 1) {
-      scanf("%d",&u_pid);
-    }
+      syscall(__NR_set_switch,sw);
+    }  
   }
   return 0;
 }

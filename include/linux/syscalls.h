@@ -949,5 +949,10 @@ asmlinkage long sys_pkey_alloc(unsigned long flags, unsigned long init_val);
 asmlinkage long sys_pkey_free(int pkey);
 asmlinkage long sys_statx(int dfd, const char __user *path, unsigned flags,
 			  unsigned mask, struct statx __user *buffer);
-
+asmlinkage void setPID(int pid);
+asmlinkage int getPID(void);
+asmlinkage void sysarray_init(void);
+asmlinkage unsigned long *get_sysarray(void);
+asmlinkage void set_switch(int on_off);
+asmlinkage void num_syscalls(void);
 #endif
